@@ -1,5 +1,6 @@
 #include "wbc.h"
 #include "logging.h"
+#include <cstring>
 
 namespace webf {
 bool Wbc::verifySignature(const uint8_t* bytes) {
