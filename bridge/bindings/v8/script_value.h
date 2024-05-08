@@ -55,12 +55,12 @@ class ScriptValue final {
 
   ScriptValue(v8::Isolate* isolate, v8::Local<v8::Value> value)
       : isolate_(isolate) {
-    // TODO DCHECK(isolate_);
+    assert_m(isolate_, "isolate is nullptr");
     if (value.IsEmpty())
         return;
     v8_reference_.Reset(isolate, value);
   }
-  
+
   ~ScriptValue() {
     // Reset() below eagerly cleans up Oilpan-internal book-keeping data
     // structures. Since most uses of ScriptValue are from stack or parameters
@@ -87,7 +87,7 @@ class ScriptValue final {
   // TODO(riakf): Use this GetIsolate() only when doing DCHECK inside
   // ScriptValue.
   v8::Isolate* GetIsolate() const {
-//    DCHECK(isolate_);
+    assert_m(isolate_, "isolate is nullptr");
     return isolate_;
   }
 
@@ -106,7 +106,7 @@ class ScriptValue final {
   // This creates a new local Handle; Don't use this in performance-sensitive
   // places.
   bool IsFunction() const {
-//    DCHECK(!IsEmpty());
+    assert_m(!IsEmpty(), "ScriptValue is empty");
     v8::Local<v8::Value> value = V8Value();
     return !value.IsEmpty() && value->IsFunction();
   }
@@ -114,7 +114,7 @@ class ScriptValue final {
   // This creates a new local Handle; Don't use this in performance-sensitive
   // places.
   bool IsNull() const {
-//    DCHECK(!IsEmpty());
+    assert_m(!IsEmpty(), "ScriptValue is empty");
     v8::Local<v8::Value> value = V8Value();
     return !value.IsEmpty() && value->IsNull();
   }
@@ -122,7 +122,7 @@ class ScriptValue final {
   // This creates a new local Handle; Don't use this in performance-sensitive
   // places.
   bool IsUndefined() const {
-//    DCHECK(!IsEmpty());
+    assert_m(!IsEmpty(), "ScriptValue is empty");
     v8::Local<v8::Value> value = V8Value();
     return !value.IsEmpty() && value->IsUndefined();
   }
@@ -130,7 +130,7 @@ class ScriptValue final {
   // This creates a new local Handle; Don't use this in performance-sensitive
   // places.
   bool IsObject() const {
-//    DCHECK(!IsEmpty());
+    assert_m(!IsEmpty(), "ScriptValue is empty");
     v8::Local<v8::Value> value = V8Value();
     return !value.IsEmpty() && value->IsObject();
   }
