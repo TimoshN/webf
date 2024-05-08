@@ -16,12 +16,17 @@
 #include "foundation/native_string.h"
 #include "platform/script_state.h"
 #include "union_base.h"
-#include "world_safe_v8_reference.h"
 #include "bindings/v8/platform/wtf/vector_traits.h"
 #include "script_wrappable.h"
 #include "module/v8_binding_for_modules.h"
+#include "foundation/macros.h"
 
 namespace webf {
+
+// TODO The implementation of TraceWrapperV8Reference is only temporary
+template <typename T>
+using TraceWrapperV8Reference = v8::TracedReference<T>;
+
 namespace bindings {
 class DictionaryBase;
 class UnionBase;
@@ -31,7 +36,7 @@ class ScriptState;
 // ScriptValue is used when an idl specifies the type as 'any'. ScriptValue
 // stores the v8 value using WorldSafeV8Reference.
 class ScriptValue final {
-  DISALLOW_NEW();
+  WEBF_DISALLOW_NEW();
 
  public:
   // ScriptValue::From() is restricted to certain types that are unambiguous in
@@ -66,16 +71,19 @@ class ScriptValue final {
   ScriptValue() = default;
 
   ScriptValue(v8::Isolate* isolate, v8::Local<v8::Value> value)
-      : isolate_(isolate), value_(isolate, value) {
-//    DCHECK(isolate_);
+      : isolate_(isolate) {
+    // TODO DCHECK(isolate_);
+    if (value.IsEmpty())
+        return;
+    v8_reference_.Reset(isolate, value);
   }
 
   template <typename T>
   ScriptValue(v8::Isolate* isolate, v8::MaybeLocal<T> value)
-      : isolate_(isolate),
-        value_(isolate,
-               value.IsEmpty() ? v8::Local<T>() : value.ToLocalChecked()) {
-//    DCHECK(isolate_);
+      : isolate_(isolate) {
+    //   TODO DCHECK(isolate_);
+    v8::Local<T> localValue = value.IsEmpty() ? v8::Local<T>() : value.ToLocalChecked();
+    v8_reference_.Reset(isolate, localValue);
   }
 
   ~ScriptValue() {
@@ -96,7 +104,7 @@ class ScriptValue final {
     //
     // TODO(v8:v8:13372): Remove once v8::TracedReference is implemented as
     // direct pointer.
-    value_.Reset();
+    v8_reference_.Reset();
   }
 
   ScriptValue(const ScriptValue& value) = default;
@@ -115,7 +123,7 @@ class ScriptValue final {
       return value.IsEmpty();
     if (value.IsEmpty())
       return false;
-    return value_ == value.value_;
+    return v8_reference_ == value.v8_reference_;
   }
 
   bool operator!=(const ScriptValue& value) const { return !operator==(value); }
@@ -152,11 +160,11 @@ class ScriptValue final {
     return !value.IsEmpty() && value->IsObject();
   }
 
-  bool IsEmpty() const { return value_.IsEmpty(); }
+  bool IsEmpty() const { return v8_reference_.IsEmpty(); }
 
   void Clear() {
     isolate_ = nullptr;
-    value_.Reset();
+    v8_reference_.Reset();
   }
 
   v8::Local<v8::Value> V8Value() const;
@@ -169,23 +177,13 @@ class ScriptValue final {
 
   static ScriptValue CreateNull(v8::Isolate*);
 
-//  void Trace(Visitor* visitor) const { visitor->Trace(value_); }
+  void Trace(Visitor* visitor) const { visitor->Trace(v8_reference_); }
 
  private:
   v8::Isolate* isolate_ = nullptr;
-  WorldSafeV8Reference<v8::Value> value_;
+  TraceWrapperV8Reference<v8::Value> v8_reference_;
 };
 
 }  // namespace webf
-
-namespace WTF {
-
-// VectorTraits for ScriptValue depend entirely on
-// WorldSafeV8Reference<v8::Value>.
-template <>
-struct VectorTraits<webf::ScriptValue>
-    : VectorTraits<webf::WorldSafeV8Reference<v8::Value>> {};
-
-}  // namespace WTF
 
 #endif  // BRIDGE_SCRIPT_VALUE_H
