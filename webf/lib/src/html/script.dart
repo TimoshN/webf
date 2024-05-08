@@ -94,7 +94,7 @@ class ScriptRunner {
     return _syncScriptTasks.isNotEmpty;
   }
 
-  void _queueScriptForExecution(ScriptElement element, {bool isInline = false, required String contentType}) async {
+  void _queueScriptForExecution(ScriptElement element, {bool isInline = false, bool isScriptId = false, required String contentType}) async {
     // Increment load event delay count before eval.
     _document.incrementDOMContentLoadedEventDelayCount();
 
@@ -109,6 +109,12 @@ class ScriptRunner {
         _document.controller.preloadStatus != PreloadingStatus.done;
 
     if (isInline) {
+      String? scriptCode = element.collectElementChildText();
+      if (scriptCode == null) {
+        return;
+      }
+      bundle = WebFBundle.fromContent(scriptCode);
+    } else if (isScriptId) {
       String? scriptId = element.getAttribute(__INLINE_SCRIPT_ID__);
       if (scriptId == null) {
         return;
@@ -350,7 +356,9 @@ class ScriptElement extends Element {
 
       SchedulerBinding.instance.scheduleFrame();
     } else if (hasAttribute(__INLINE_SCRIPT_ID__)) {
-      ownerDocument.scriptRunner._queueScriptForExecution(this, isInline: true, contentType: _type);
+      ownerDocument.scriptRunner._queueScriptForExecution(this, isScriptId: true, contentType: _type);
+    } else if (childNodes.isNotEmpty) {
+      ownerDocument.scriptRunner._queueScriptForExecution(this, contentType: _type, isInline: true);
     }
   }
 
