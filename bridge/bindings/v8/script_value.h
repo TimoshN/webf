@@ -51,23 +51,6 @@ class ScriptValue final {
     return ScriptValue(script_state->GetIsolate(), value->ToV8(script_state));
   }
 
-  template <typename T, typename... Arguments>
-  static inline T To(v8::Isolate* isolate,
-                     v8::Local<v8::Value> value,
-                     ExceptionState& exception_state,
-                     Arguments const&... arguments) {
-    return NativeValueTraits<T>::NativeValue(isolate, value, exception_state,
-                                             arguments...);
-  }
-
-  template <typename T, typename... Arguments>
-  static inline T To(v8::Isolate* isolate,
-                     const ScriptValue& value,
-                     ExceptionState& exception_state,
-                     Arguments const&... arguments) {
-    return To<T>(isolate, value.V8Value(), exception_state, arguments...);
-  }
-
   ScriptValue() = default;
 
   ScriptValue(v8::Isolate* isolate, v8::Local<v8::Value> value)
@@ -77,15 +60,7 @@ class ScriptValue final {
         return;
     v8_reference_.Reset(isolate, value);
   }
-
-  template <typename T>
-  ScriptValue(v8::Isolate* isolate, v8::MaybeLocal<T> value)
-      : isolate_(isolate) {
-    //   TODO DCHECK(isolate_);
-    v8::Local<T> localValue = value.IsEmpty() ? v8::Local<T>() : value.ToLocalChecked();
-    v8_reference_.Reset(isolate, localValue);
-  }
-
+  
   ~ScriptValue() {
     // Reset() below eagerly cleans up Oilpan-internal book-keeping data
     // structures. Since most uses of ScriptValue are from stack or parameters
