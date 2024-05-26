@@ -1,0 +1,17 @@
+npm run build:bridge:linux
+
+cd bridge
+
+aurora_psdk sb2 -t AuroraOS-4.0.2.303-base-armv7hl 
+
+export WEBF_BUILD=Release
+
+export WEBF_JS_ENGINE="quickjs"
+
+export LIBRARY_OUTPUT_DIR="~/webf/bridge/build/aurora/lib/"
+
+cmake -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles" -B ~/webf/bridge/cmake-build-linux -S ~/webf/bridge
+
+cmake --build ~/webf/bridge/cmake-build-linux --target webf
+
+chrpath --replace \$ORIGIN ~/webf/bridge/build/aurora/lib/libwebf.so
