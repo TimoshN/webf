@@ -46,3 +46,5 @@ flutter:
         pluginClass: WebfPlugin
       windows:
         pluginClass: WebfPlugin
+      aurora:
+        pluginClass: WebfPlugin

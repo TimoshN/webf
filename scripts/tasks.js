@@ -483,6 +483,61 @@ task(`build-ios-webf-lib`, (done) => {
   done();
 });
 
+// task('build-linux-webf-lib', (done) => {
+//   const buildType = buildMode == 'Release' ? 'Release' : 'RelWithDebInfo';
+//   const cmakeGeneratorTemplate = platform == 'win32' ? 'Ninja' : 'Unix Makefiles';
+
+//   let externCmakeArgs = [];
+
+//   if (process.env.USE_SYSTEM_MALLOC === 'true') {
+//     externCmakeArgs.push('-DUSE_SYSTEM_MALLOC=true');
+//   }
+
+//   if (program.enableLog) {
+//     externCmakeArgs.push('-DENABLE_LOG=true');
+//   }
+
+//   const soBinaryDirectory = path.join(paths.bridge, `build/linux/lib/`);
+//   const bridgeCmakeDir = path.join(paths.bridge, 'cmake-build-linux');
+//   // generate project
+//   execSync(`cmake -DCMAKE_BUILD_TYPE=${buildType} \
+//   ${externCmakeArgs.join(' ')} \
+//   ${isProfile ? '-DENABLE_PROFILE=TRUE \\' : '\\'}
+//   ${'-DENABLE_TEST=true \\'}
+//   -G "${cmakeGeneratorTemplate}" \
+//   -B ${paths.bridge}/cmake-build-linux -S ${paths.bridge}`,
+//     {
+//       cwd: paths.bridge,
+//       stdio: 'inherit',
+//       env: {
+//         ...process.env,
+//         WEBF_JS_ENGINE: targetJSEngine,
+//         LIBRARY_OUTPUT_DIR: soBinaryDirectory
+//       }
+//     });
+
+//   // build
+//   execSync(`cmake --build ${bridgeCmakeDir} --target webf ${buildMode != 'Release' ? 'webf_test' : ''} webf_unit_test -- -j 12`, {
+//     stdio: 'inherit'
+//   });
+
+//   const libs = [
+//     'libwebf.so'
+//   ];
+
+//   if (buildMode != 'Release') {
+//     libs.push('libwebf_test.so');
+//   }
+
+//   libs.forEach(lib => {
+//     const libkrakenPath = path.join(paths.bridge, `build/linux/lib/${lib}`);
+//     // Patch libkraken.so's runtime path.
+//     execSync(`chrpath --replace \\$ORIGIN ${libkrakenPath}`, { stdio: 'inherit' });
+//   });
+
+//   done();
+// });
+
 task('build-linux-webf-lib', (done) => {
   const buildType = buildMode == 'Release' ? 'Release' : 'RelWithDebInfo';
   const cmakeGeneratorTemplate = platform == 'win32' ? 'Ninja' : 'Unix Makefiles';

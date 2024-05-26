@@ -6,7 +6,7 @@
 #ifndef BRIDGE_CORE_DOM_LEGACY_ELEMENT_ATTRIBUTES_H_
 #define BRIDGE_CORE_DOM_LEGACY_ELEMENT_ATTRIBUTES_H_
 
-#include <unordered_map>
+#include <tr1/unordered_map>
 #include "bindings/qjs/atomic_string.h"
 #include "bindings/qjs/cppgc/member.h"
 #include "bindings/qjs/script_wrappable.h"
@@ -35,14 +35,14 @@ class ElementAttributes : public ScriptWrappable {
   std::string ToString();
 
   bool IsEquivalent(const ElementAttributes& other) const;
-  std::unordered_map<AtomicString, AtomicString>::iterator begin();
-  std::unordered_map<AtomicString, AtomicString>::iterator end();
+  std::tr1::unordered_map<AtomicString, AtomicString>::iterator begin();
+  std::tr1::unordered_map<AtomicString, AtomicString>::iterator end();
 
   void Trace(GCVisitor* visitor) const override;
 
  private:
   Member<Element> element_;
-  std::unordered_map<AtomicString, AtomicString, AtomicString::KeyHasher> attributes_;
+  std::tr1::unordered_map<AtomicString, AtomicString, AtomicString::KeyHasher> attributes_;
 };
 
 }  // namespace webf

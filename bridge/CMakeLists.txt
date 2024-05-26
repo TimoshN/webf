@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10.0)
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.11)
 project(WebF)
 
+
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.11)
 # MSBuild are slower than Clang/GCC to support new CXX standards.
 if(MSVC)
@@ -615,20 +616,20 @@ target_include_directories(webf_static PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR} PUBLIC ./include)
 target_link_libraries(webf_static ${BRIDGE_LINK_LIBS})
 
-execute_process(
-  COMMAND node get_app_ver.js
-  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/scripts
-  OUTPUT_VARIABLE APP_VER
-)
-string(REPLACE \n "" APP_VER ${APP_VER}) # Remove last \n
-add_definitions(-DAPP_VERSION="${APP_VER}") # Read from dartfm version
-execute_process(
-  COMMAND git rev-parse --short HEAD
-  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-  OUTPUT_VARIABLE GIT_HEAD
-)
-string(REPLACE \n "" GIT_HEAD ${GIT_HEAD}) # Remove last \n
-add_definitions(-DAPP_REV="${GIT_HEAD}") # Read from git head sha1
+# execute_process(
+#   COMMAND node get_app_ver.js
+#   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/scripts
+#   OUTPUT_VARIABLE APP_VER
+# )
+# string(REPLACE \n "" APP_VER ${APP_VER}) # Remove last \n
+add_definitions(-DAPP_VERSION="1234") # Read from dartfm version
+# execute_process(
+#   COMMAND git rev-parse --short HEAD
+#   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+#   OUTPUT_VARIABLE GIT_HEAD
+# )
+# string(REPLACE \n "" GIT_HEAD ${GIT_HEAD}) # Remove last \n
+add_definitions(-DAPP_REV="5678") # Read from git head sha1
 
 if (${ENABLE_TEST})
   add_compile_definitions(IS_TEST=true)
